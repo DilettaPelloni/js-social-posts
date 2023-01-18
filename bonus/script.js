@@ -66,16 +66,21 @@ posts.forEach(element => {
 
     //GESTIONE PROFILE PIC
     //di default prendo ciò che trovo nell'oggetto
-    let authorImage = `<img class="profile-pic" src="${element.author.image}" alt="${element.author.name}">`
+    let authorImage = `
+        <img class="profile-pic" src="${element.author.image}" alt="${element.author.name}">
+    `
     //se non c'è niente devo mettere uno span con le iniziali
     if (element.author.image == null) {
         const initials = element['author']['name'].split(" ").map(word => word.charAt(0).toUpperCase());
         authorImage = `
             <div class="profile-pic-default">
-                <span class="">${initials.join("")}</span>
+                <span>${initials.join("")}</span>
             </div>
         `
     }
+
+    //modifico formato data
+    const date = element['created'].split("-").reverse().join('/');
 
     post.innerHTML = `
         <div class="post__header">
@@ -85,7 +90,7 @@ posts.forEach(element => {
                 </div>
                 <div class="post-meta__data">
                     <div class="post-meta__author">${element.author.name}</div>
-                    <div class="post-meta__time">${element.created}</div>
+                    <div class="post-meta__time">${date}</div>
                 </div>                    
             </div>
         </div>
@@ -114,23 +119,32 @@ posts.forEach(element => {
 //faccio un array con i bottoni dei like
 const likeButtons = document.querySelectorAll('.js-like-button');
 //faccio un array in cui salvare i post a cui è stato messo like
-const likeArray = [];
+let likeArray = [];
 
 //a ciascun bottone like assegno un evento al click
 likeButtons.forEach((element, i)=> {
     element.addEventListener('click',
     function() {
-        //solo se non ho già messo mi piace
-        if(!this.classList.contains('like-button--liked')) {
+        //prendo il like counter e il suo contenuto
+        const likeCounter = document.getElementById(`like-counter-${i+1}`);
+        let likeNum = parseInt(likeCounter.innerHTML);
+        //solo se ho già messo mi piace
+        if(likeArray.includes(i + 1)) {
+            //decremento il like counter
+            likeCounter.innerHTML = likeNum - 1;
+            //tolgo l'ID nell'apposito array
+            likeArray = likeArray.filter((element) => element != i + 1);
+        }
+        else {
             //incremento il like counter
-            const likeCounter = document.getElementById(`like-counter-${i+1}`);
-            let likeNum = parseInt(likeCounter.innerHTML);
             likeCounter.innerHTML = likeNum + 1;
             //mi salvo l'ID nell'apposito array
             likeArray.push(i + 1);
         }
         //cambio il colore del testo
-        this.classList.add('like-button--liked');
+        this.classList.toggle('like-button--liked');
+
+        console.log(likeArray);
     })
 });
 
